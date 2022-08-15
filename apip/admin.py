@@ -8,4 +8,5 @@ admin.site.register(Shop)
 admin.site.register(Mall)
 admin.site.register(Park)
 
+admin.site.register(Org)
 

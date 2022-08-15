@@ -1,3 +1,6 @@
+# monti 123
+
+from gc import get_objects
 import imp
 from django.http import Http404
 from django.shortcuts import render
@@ -8,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 
+from django.shortcuts import get_object_or_404
 
 class ShopView(APIView):
 
@@ -95,9 +99,6 @@ class MallDetailsView(generics.GenericAPIView):
         mal.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-                                                                  
-
-
 # class StudentList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
 #     queryset = Student.objects.all()
 #     serializer_class= StudentSerializer
@@ -127,12 +128,14 @@ class MallDetailsView(generics.GenericAPIView):
 class BookView(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
     # def post(self, request, *args, **kwargs):
     #     print(request.data)
     #     request.data.update({'rating': 9})
     #     request.data.update({'writer': 2})
     #     print(request.data)
     #     return super(BookView, self).post(request, *args, **kwargs)
+    
     def post(self, request, *args, **kwargs):
         try:
             return super(BookView, self).post(request, *args, **kwargs)
@@ -180,6 +183,41 @@ class ParkPin(generics.ListAPIView):
 
 
 
+
+class OrgView(generics.ListCreateAPIView):
+    queryset = Org.objects.all()
+    serializer_class = OrgListSerializer
+
+class OrgDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Org.objects.all()
+    lookup_field = "id"
+
+    def get_serializer_class(self):
+        if self.request.method == "PUT":
+            return OrgPostSerializer
+        return OrgListSerializer
+
+    def put(self, request, *args, **kwargs):
+        try:
+            super(OrgDetailsView, self).put(request, *args, **kwargs)
+        except ValidationError as e:
+            # print("e.erroe_dict = ", e.error_dict)
+            # return Response(e.eroor_dict)        --------->      if raise Validationerror from models.py
+            return Response(e)                   # --------->      if raise Validationerror from serializers.py
+
+    # def get_object(self):
+    #     rank = self.kwargs.get("rank")
+    #     name = self.kwargs.get("name")
+    #     return get_object_or_404(Org, name=name, rank=rank)
+
+    # path('Org/<int:orgid>', views.OrgDetailsView.as_view())
+    # lookup_field = 'orgid'                                     # Cannot resolve keyword 'orgid' into field. Choices are: id, name, org_id, rank
+
+    #path('Org/<int:org_id>', views.OrgDetailsView.as_view())
+    #lookup_field = 'org_id'                                     # org_id se dhundega, works properly
+
+    # url me pk set karo to lookup_field= "pk" hi rakhna parega, na b rakho to kaam karta
+    # url me id set karo to lookup_field= "id" hi rakhna parega, nahi rakha to kaam nahi karta
 
 
 
